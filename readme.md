@@ -7,4 +7,4 @@ different obstacles. Also.. you know.. coding challenges are a fun way to learn 
 want them to just sit on my hard drive once they are done. \<sarcasm>Microsoft should also have them sitting on their hard drives.
 \</sarcasm>
 
-If I spoiled a solution that I shouldn't have feel free to contact me at codechallenges(at)dysphoric.dev and I'll remove them asap.
+If I spoiled a solution that I shouldn't have feel free to contact me at codechallenges(at)dysphoric.dev and I'll remove it asap.
