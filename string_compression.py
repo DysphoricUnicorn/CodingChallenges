@@ -22,11 +22,15 @@ class StringCompression:
         :return string:
         """
         for match in re.finditer(self.regex, sub_string):
+            # iterate through all instances of repeated groups
             replace_string = ""
             for i in range(0, int(match.group(1))):
+                # repeat the group as often as they have to be
                 replace_string += match.group(3)
             sub_string = sub_string.replace(match.group(0), replace_string)
+            # replace the groups inside my string
         if re.search(self.regex, sub_string):
+            # if the replacements caused new groups to be created, run this function over those as well
             sub_string = self.do_decoding(sub_string)
         return sub_string
 
