@@ -125,6 +125,20 @@ class MineField:
                         pass
 
 
+def safely_get_int():
+    """
+    Attempts to get an integer from input and puts out an error message every time the user enters something wrong
+    :return int:
+    """
+    ret = None
+    while ret is None:
+        try:
+            ret = int(input())
+        except ValueError:
+            print("Please only input an integer")
+    return ret
+
+
 def main():
     """
     The setup for the game and game loop, contained inside a function to avoid global variable declarations
@@ -132,11 +146,11 @@ def main():
     """
     print("Welcome to Minesweeper.\n")
     print("Please enter how wide you want the field to be")
-    width = int(input())
+    width = safely_get_int()
     print("Please enter how high you want the field to be")
-    height = int(input())
+    height = safely_get_int()
     print("Please enter how many mines you want placed inside the field")
-    mine_count = int(input())
+    mine_count = safely_get_int()
     mine_field = MineField(height, width, mine_count)
     alive = True
     mine_field.draw_field(alive)
