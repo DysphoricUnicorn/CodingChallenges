@@ -2,6 +2,7 @@
 This is my version of a Minesweeper game that is played inside the console.
 """
 import random
+import math
 
 
 class MineField:
@@ -21,33 +22,34 @@ class MineField:
         self.height = height
         self.width = width
         self.space_count = height * width
-        if mine_count > self.space_count:
-            # If there would be more mines than there are spaces that would be bad so we prevent it
-            mine_count = self.space_count
-        for i in range(width):
-            # Initialize the playing field
+        self.open_spaces = mine_count
+        temp_list = []
+        for i in range(self.space_count):
+            if i < mine_count:
+                temp_list.append([9, False])
+            else:
+                temp_list.append([0, False])
+        random.shuffle(temp_list)
+        # fill a list with mine_count mines and empty tiles and shuffle it
+        i = 0
+        for y in range(height):
             self.spaces.append([])
-            for c in range(height):
-                self.spaces[i].append([0, False])
-                """
-                the first value in the list specifies the amount of adjacent mines, the second is whether or not the 
-                tile's value is visible
-                """
-        b = 0
-        while b < mine_count:
-            # place mines
-            rand_x = random.randint(0, width - 1)
-            rand_y = random.randint(0, height - 1)
-            if not self.spaces[rand_x][rand_y][0] == 9:
-                # make sure there is no mine in the randomly generated spot
-                self.spaces[rand_x][rand_y][0] = 9
-                b += 1
-                for x in range(rand_x - 1, rand_x + 2):
-                    for y in range(rand_y - 1, rand_y + 2):
-                        if 0 <= y < self.height and 0 <= x < self.width and self.spaces[x][y][0] < 8:
-                            # get all adjacent tiles and add one to their value if they don't contain mines
-                            self.spaces[x][y][0] += 1
-        self.open_spaces = b
+            for x in range(width):
+                self.spaces[y].append(temp_list[i])
+                i += 1
+        # fill the list into the multi-dimensional self.spaces list
+        y = 0
+        while y < height:
+            x = 0
+            while x < width:
+                if self.spaces[y][x][0] == 9:
+                    for i in range(y - 1, y + 2):
+                        for c in range(x - 1, x + 2):
+                            if 0 <= i < height and 0 <= c < width and self.spaces[i][c][0] < 8:
+                                self.spaces[i][c][0] += 1
+                x += 1
+            y += 1
+        # count the adjacent mines for every tile
 
     def draw_field(self, alive):
         """
@@ -67,25 +69,20 @@ class MineField:
                 else:
                     if x == -1:
                         # Print the first char in all lines containing the y coordinate
-                        to_print += str(y) + " "
+                        to_print += str(y)
+                        for filler in range(0, len(str(self.height - 1)) - len(str(y)) + 1):
+                            to_print += " "
                     else:
-                        for filler in range(0, x // 10):
+                        for filler in range(0, len(str(x)) - 1):
                             # Fill up tiles to always be the same width as their corresponding x coordinate
                             to_print += " "
-                        if self.spaces[x][y][1] or not alive:
+                        if self.spaces[y][x][1] or not alive:
                             # Display the current tile if it was checked or the player is dead
-                            to_print += str(self.spaces[x][y][0]) + " "
+                            to_print += str(self.spaces[y][x][0]) + " "
                         else:
                             # Display a minus otherwise
                             to_print += "-" + " "
             print(to_print)
-
-    def has_won(self):
-        """
-        Checks if the player has checked all tiles
-        :return bool:
-        """
-        return not self.open_spaces <= self.space_count
 
     def check_tile(self, x, y):
         """
@@ -95,13 +92,16 @@ class MineField:
         :param int y: the y coordinate of the tile
         :return bool:
         """
-        if self.spaces[x][y][0] == 0:
+        if self.spaces[y][x][0] == 0:
             self.turn_all_adjacent_zeroes(x, y)
-        elif self.spaces[x][y][0] == 9:
+        elif self.spaces[y][x][0] == 9:
             return False
-        elif not self.spaces[x][y][1]:
-            self.spaces[x][y][1] = True
+        elif not self.spaces[y][x][1]:
+            print("uncovered regular tile")
+            self.spaces[y][x][1] = True
             self.open_spaces += 1
+        else:
+            print("You already have uncovered this tile")
         return True
 
     def turn_all_adjacent_zeroes(self, x, y):
@@ -112,17 +112,26 @@ class MineField:
         :return void:
         """
         if 0 <= x < self.width and 0 <= y < self.height:
-            self.open_spaces += 1
-            self.spaces[x][y][1] = True
             for i in range(x - 1, x + 2):
                 for c in range(y - 1, y + 2):
-                    try:
-                        if self.spaces[i][c][0] == 0 and not self.spaces[i][c][1]:
-                            # recursively also turn all adjacent zero value tiles' adjacent zero value tiles
-                            self.turn_all_adjacent_zeroes(i, c)
-                    except IndexError:
-                        # ignore tiles that don't exist
-                        pass
+                    if 0 <= i < self.width and 0 <= c < self.height:
+                        try:
+                            if not self.spaces[c][i][1]:
+                                # recursively also turn all adjacent zero value tiles' adjacent zero value tiles
+                                self.open_spaces += 1
+                                self.spaces[c][i][1] = True
+                                if self.spaces[c][i][0] == 0:
+                                    self.turn_all_adjacent_zeroes(i, c)
+                        except IndexError:
+                            # ignore tiles that don't exist
+                            pass
+
+    def get_current_play_info(self):
+        """
+        Returns the amount of tiles that have to be uncovered to win
+        :return int:
+        """
+        return self.space_count - self.open_spaces
 
 
 def safely_get_int():
@@ -154,18 +163,21 @@ def main():
     mine_field = MineField(height, width, mine_count)
     alive = True
     mine_field.draw_field(alive)
-    while not mine_field.has_won() and alive:
+    current_info = mine_field.get_current_play_info()
+    while current_info > 0 and alive:
+        print("You still have " + str(current_info) + " tiles to uncover.")
         check_y = -1
         while 0 > check_y or check_y >= height:
             # if the user enters an invalid value
             print("Which line do you want to check?")
-            check_y = int(input())
+            check_y = safely_get_int()
         check_x = -1
         while 0 > check_x or check_x >= width:
             print("Which position in that line do you want to check?")
-            check_x = int(input())
+            check_x = safely_get_int()
         alive = mine_field.check_tile(check_x, check_y)
         mine_field.draw_field(alive)
+        current_info = mine_field.get_current_play_info()
     if alive:
         print("Congratulations, you won!")
     else:
