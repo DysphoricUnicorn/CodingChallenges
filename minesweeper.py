@@ -2,7 +2,6 @@
 This is my version of a Minesweeper game that is played inside the console.
 """
 import random
-import math
 
 
 class MineField:
@@ -55,7 +54,7 @@ class MineField:
         """
         Display the playing field
         :param alive: Whether or not the player is alive. If they aren't all tiles are displayed
-        :return:
+        :return void:
         """
         for y in range(-1, self.height):
             to_print = ""
