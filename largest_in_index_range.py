@@ -35,8 +35,9 @@ class ListContainer:
 
 def safely_get_int():
     """
-    Gets an int from console.
-    Re-prompts every time the user enters something that is not an int until they input a valid integer.
+    Gets an int between 0 and 99999 from console.
+    Re-prompts every time the user enters something that is not an int between 0 and 99999 until they input a valid
+    value.
     :return int:
     """
     ret = None
