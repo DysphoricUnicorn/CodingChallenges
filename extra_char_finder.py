@@ -45,4 +45,6 @@ def main():
     print(char)
 
 
-main()
+if __name__ == '__main__':
+    main()
+

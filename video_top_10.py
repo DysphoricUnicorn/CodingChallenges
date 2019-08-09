@@ -64,4 +64,6 @@ def main():
         print(video)
 
 
-main()
+if __name__ == '__main__':
+    main()
+

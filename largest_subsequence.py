@@ -78,4 +78,6 @@ def main():
         print(largest_subsequence)
 
 
-main()
+if __name__ == '__main__':
+    main()
+

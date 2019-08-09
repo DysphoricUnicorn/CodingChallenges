@@ -183,4 +183,6 @@ def main():
         print("Ouch! You've hit a mine.")
 
 
-main()
+if __name__ == '__main__':
+    main()
+
