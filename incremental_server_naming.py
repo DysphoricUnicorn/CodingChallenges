@@ -61,7 +61,8 @@ class Hypervisor:
         try:
             self.servers[server.group(1)].remove(int(server.group(2)))
             return True
-        except KeyError:
+        except (KeyError, AttributeError):
+            # Catch errors that occur if the input is malformed or the given server doesn't exit
             return False
 
     def list_servers(self):
@@ -104,4 +105,6 @@ def main():
             print("Unrecognized input. Please try again")
 
 
-main()
+if __name__ == '__main__':
+    main()
+
